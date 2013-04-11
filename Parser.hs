@@ -1,4 +1,4 @@
-module AParser (Parser, runParser, satisfy, char, posInt) where
+module Parser where
 
 import Control.Applicative
 import Data.Char
@@ -16,8 +16,8 @@ satisfy p = Parser f
 char :: Char -> Parser Char
 char c = satisfy (== c)
 
-posInt :: Parser Integer
-posInt = Parser f
+posInt' :: Parser Int
+posInt' = Parser f
   where
     f xs
       | null ns   = Nothing
@@ -42,3 +42,15 @@ instance Applicative Parser where
 instance Alternative Parser where
   empty = Parser (const Nothing)
   Parser p1 <|> Parser p2 = Parser $ liftA2 (<|>) p1 p2
+
+zeroOrMore :: Parser a -> Parser [a]
+zeroOrMore p = oneOrMore p <|> pure []
+
+oneOrMore :: Parser a -> Parser [a]
+oneOrMore p = (:) <$> p <*> zeroOrMore p
+
+spaces :: Parser String
+spaces = zeroOrMore (satisfy isSpace)
+
+posInt :: Parser Int
+posInt = spaces *> posInt' <* spaces
