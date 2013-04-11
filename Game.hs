@@ -8,6 +8,15 @@ module Game where
 import Data.List
 import Text.Printf
 
+{-
+Potential games:
+Connect 4
+Reversi/Othello
+Checkers
+Gomoku
+Go
+-}
+
 -------------------- Helper Functions ---------------------
 
 -- Use Data.Sequence instead of lists?
@@ -87,3 +96,10 @@ instance Game TicTacToe where
       ++ surround "  +-+-+-+"
          [printf "%d %s" i (surround '|' row) | (i, row) <- zip nats board]
       ++ [printf "Player %c's turn: " (if player then 'X' else 'O')]
+
+
+{-
+class Wrapper g where
+  playGame :: g -> Player g -> Player g ->
+
+-}
