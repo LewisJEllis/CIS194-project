@@ -58,6 +58,7 @@ class Game g where
   isGameOver      :: State g -> Bool
   gameOverMessage :: State g -> String
 
+  showMove        :: Move g -> String
   showState       :: State g -> String
 
 ----------------------- TicTacToe -----------------------
@@ -86,6 +87,8 @@ instance Game TicTacToe where
 
   gameOverMessage (TicTacToeState _ player)
     = printf "Player %c wins!" (if player then 'O' else 'X')
+
+  showMove (TicTacToeMove x y) = printf "(%d, %d)" x y
 
   showState (TicTacToeState board player)
     = unlines $
