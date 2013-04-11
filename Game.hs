@@ -98,6 +98,7 @@ instance Game TicTacToe where
       ++ [printf "Player %c's turn." (if player then 'X' else 'O')]
 
 {-
+putStr (showState (doMove (TicTacToeMove 0 0) (doMove (TicTacToeMove 1 1) initState)))
 makeHumanPlayer :: Parser (Move g) -> (State g -> IO (Move g))
 
 class Wrapper g where
