@@ -92,11 +92,10 @@ instance Game TicTacToe where
 
   showState (TicTacToeState board player)
     = unlines $
-         ["   1 2 3"]
+      ["   1 2 3"]
       ++ surround "  +-+-+-+"
          [printf "%d %s" i (surround '|' row) | (i, row) <- zip nats board]
-      ++ [printf "Player %c's turn: " (if player then 'X' else 'O')]
-
+      ++ [printf "Player %c's turn." (if player then 'X' else 'O')]
 
 {-
 makeHumanPlayer :: Parser (Move g) -> (State g -> IO (Move g))
