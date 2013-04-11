@@ -96,7 +96,10 @@ instance Game TicTacToe where
 
 
 {-
-class Wrapper g where
-  playGame :: g -> Player g -> Player g ->
+makeHumanPlayer :: Parser (Move g) -> (State g -> IO (Move g))
 
+class Wrapper g where
+  playGame :: g -> (State g -> IO (Move g))
+                -> (State g -> IO (Move g))
+                -> IO ()
 -}
