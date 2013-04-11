@@ -16,7 +16,7 @@ zeroOrMore :: Parser a -> Parser [a]
 zeroOrMore p = oneOrMore p <|> pure []
 
 oneOrMore :: Parser a -> Parser [a]
-oneOrMore p = (++) . pure <$> p <*> zeroOrMore p
+oneOrMore p = (:) <$> p <*> zeroOrMore p
 
 ------------------------------------------------------------
 --  2. Utilities
@@ -26,7 +26,7 @@ spaces :: Parser String
 spaces = zeroOrMore (satisfy isSpace)
 
 ident :: Parser String
-ident = (++) . pure <$> satisfy isAlpha <*> zeroOrMore (satisfy isAlphaNum)
+ident = (:) <$> satisfy isAlpha <*> zeroOrMore (satisfy isAlphaNum)
 
 ------------------------------------------------------------
 --  3. Parsing S-expressions
