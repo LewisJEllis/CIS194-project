@@ -23,6 +23,11 @@ Sample run commands:
   Tic-Tac-Toe (move input format: x y):
     playGame (makeHumanPlayer ticTacToeMoveParser) (makeHumanPlayer ticTacToeMoveParser)
 
+-- forkIO
+-- threadDelay
+-- http://www.haskell.org/ghc/docs/latest/html/libraries/base/Control-Concurrent.html
+-- http://www.haskell.org/ghc/docs/latest/html/libraries/base/Control-Concurrent-MVar.html
+
 -}
 
 --------------------- Helper Functions ---------------------
@@ -74,7 +79,9 @@ class Game g where
 
 ------------------ General Game Functions ------------------
 
-makeHumanPlayer :: (Game g, Eq (Move g)) => Parser (Move g) -> (State g -> IO (Move g))
+type Player g = State g -> IO (Move g)
+
+makeHumanPlayer :: (Game g, Eq (Move g)) => Parser (Move g) -> Player g
 makeHumanPlayer parser state =
   do putStr "Move: "
      line <- getLine
@@ -84,21 +91,27 @@ makeHumanPlayer parser state =
          | move `elem` getValidMoves state -> return move
          | otherwise -> putStrLn "Invalid move." >> makeHumanPlayer parser state
 
-playGame :: (Game g) => (State g -> IO (Move g)) -> (State g -> IO (Move g)) -> IO ()
+playGame :: (Game g) => Player g -> Player g -> IO ()
 playGame = playGameFrom initState
 
-playGameFrom :: (Game g) => State g -> (State g -> IO (Move g)) -> (State g -> IO (Move g)) -> IO ()
+playGameFrom :: (Game g) => State g -> Player g -> Player g -> IO ()
 playGameFrom state player1 player2 =
   do putStr (showState state)
      if (isDraw state)
        then putStrLn "Draw game."
-       else do
-     if (hasWinner state)
+     else if (hasWinner state)
        then putStrLn (getWinnerMessage state)
-       else do
+     else do
      putStrLn (showWhichPlayer state)
      move <- player1 state
      playGameFrom (doMove move state) player2 player1
+
+-- choose :: (Monad m) => [(Bool, m a)] -> m a
+-- (==>) = (,)
+
+-- multiplayer:
+--   - rotate through a list of players, or
+--   - define a function in Game for who moves next
 
 ----------------------- Tic-Tac-Toe ------------------------
 
@@ -110,7 +123,7 @@ ticTacToeMoveParser
 
 instance Game TicTacToe where
   
-  data Move  TicTacToe = TicTacToeMove Int Int
+  data Move TicTacToe = TicTacToeMove Int Int
     deriving Eq
   data State TicTacToe = TicTacToeState [[Char]] Bool
 
@@ -127,8 +140,9 @@ instance Game TicTacToe where
 
   hasWinner (TicTacToeState board player)
     = or [nInARow 3 c board x y dx dy
-          | x <- [0..2], y <- [0..2], dx <- [-1..1], dy <- [-1..1],
-            not (dx == 0 && dy == 0)]
+         | x <- [0..2], y <- [0..2], dx <- [-1..1], dy <- [-1..1]
+         , not (dx == 0 && dy == 0)
+         ]
       where c = if player then 'O' else 'X'
 
   getWinnerMessage (TicTacToeState _ player)
@@ -136,10 +150,11 @@ instance Game TicTacToe where
 
   showState (TicTacToeState board _)
     = unlines $
-      "    1   2   3" :
-      surround "  +---+---+---+"
-        [printf "%d%s" i (concat $ surround " | " $ map pure row)
-         | (i, row) <- zip nats board]
+        "    1   2   3"
+      : surround "  +---+---+---+"
+          [printf "%d%s" i (concat $ surround " | " $ map pure row)
+          | (i, row) <- zip nats board
+          ]
   
   showWhichPlayer (TicTacToeState _ player)
     = printf "Player %c's turn." (if player then 'X' else 'O')
