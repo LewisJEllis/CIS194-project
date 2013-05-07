@@ -6,9 +6,9 @@ module Game where
 
 import Parser
 
-import Control.Applicative
+--import Control.Applicative
+--import Text.Printf
 import Data.List
-import Text.Printf
 
 {-
 
@@ -70,6 +70,19 @@ nInARow n a board x y dx dy
   where xSize = length (head board)
         ySize = length board
 
+--Is there a run of a's of length m within a run of length n with no b's in that area?
+-- n <= 0               = (m <= 0) swap this line with the below to count 
+
+nmInARow :: Eq a => Int -> Int -> a -> a -> [[a]] -> Int -> Int -> Int -> Int -> Bool
+nmInARow n m a b board x y dx dy
+  | m <= 0               = True
+  | x < 0 || x >= xSize  = False
+  | y < 0 || y >= ySize  = False
+  | board !! y !! x == b = False
+  | board !! y !! x == a = nmInARow (n - 1) (m - 1) a b board (x + dx) (y + dy) dx dy
+  | otherwise            = nmInARow (n - 1) m a b board (x + dx) (y + dy) dx dy
+  where xSize = length (head board)
+        ySize = length board
 
 
 -------------------- Class Definitions ---------------------
@@ -129,148 +142,4 @@ playGameFrom state player1 player2 =
 --   - rotate through a list of players, or
 --   - define a function in Game for who moves next
 
------------------------ Tic-Tac-Toe ------------------------
-
-data TicTacToe = TicTacToe
-
-ticTacToeMoveParser :: Parser (Move TicTacToe)
-ticTacToeMoveParser
-  = (\x y -> TicTacToeMove (x - 1) (y - 1)) <$> posInt <*> posInt
-
-instance Game TicTacToe where
-  
-  data Move TicTacToe = TicTacToeMove Int Int
-    deriving Eq
-  data State TicTacToe = TicTacToeState [[Char]] Bool
-
-  initState = TicTacToeState ["   ", "   ", "   "] True
-
-  doMove (TicTacToeMove x y) (TicTacToeState board player)
-    = TicTacToeState (replace2D x y c board) (not player)
-      where c = if player then 'X' else 'O'
-
-  getValidMoves (TicTacToeState board _)
-    = [TicTacToeMove x y | x <- [0..2], y <- [0..2], board !! y !! x == ' ']
-  
-  isDraw state = not (hasWinner state) && length (getValidMoves state) == 0
-
-  hasWinner (TicTacToeState board player)
-    = or [nInARow 3 c board x y dx dy
-         | x <- [0..2], y <- [0..2], dx <- [-1..1], dy <- [-1..1]
-         , not (dx == 0 && dy == 0)
-         ]
-      where c = if player then 'O' else 'X'
-
-  getWinnerMessage (TicTacToeState _ player)
-    = printf "Player %c wins!" (if player then 'O' else 'X')
-
-  showState (TicTacToeState board _)
-    = unlines $
-        "    1   2   3"
-      : surround "  +---+---+---+"
-          [printf "%d%s" i (concat $ surround " | " $ map pure row)
-          | (i, row) <- zip nats board
-          ]
-  
-  showWhichPlayer (TicTacToeState _ player)
-    = printf "Player %c's turn." (if player then 'X' else 'O')
-
-
------------------------ Connect4 ------------------------
-
-data Connect4 = Connect4
-
-connect4MoveParser :: Parser (Move Connect4)
-connect4MoveParser
-  = (\x -> Connect4Move (x - 1)) <$> posInt
---  = (\x -> Connect4Move (x - 1)) <$> posInt <*> posInt
---reduce this to column
-
-instance Game Connect4 where
-  
-  data Move Connect4 = Connect4Move Int
-    deriving Eq
-  data State Connect4 = Connect4State [[Char]] Bool
-
-  initState = Connect4State (replicate 6 "       ") True
-
-  doMove (Connect4Move x) (Connect4State board player)
-    = Connect4State (replace2D x y c board) (not player)
-      where c = if player then 'X' else 'O'
-            y = length (takeWhile (== ' ') (board !! x))
-
-  getValidMoves (Connect4State board _)
-    = [Connect4Move x | x <- [0..6], board !! 0 !! x == ' '] --each column not full
-  
-  isDraw state = not (hasWinner state) && length (getValidMoves state) == 0
-
-  hasWinner (Connect4State board player)
-    = or [nInARow 4 c board x y dx dy
-         | x <- [0..6], y <- [0..5], dx <- [-1..1], dy <- [-1..1]
-         , not (dx == 0 && dy == 0)
-         ]
-      where c = if player then 'O' else 'X'
-
-  getWinnerMessage (Connect4State _ player)
-    = printf "Player %c wins!" (if player then 'O' else 'X')
-
-  showState (Connect4State board _)
-    = unlines $
-        (topLabel 7)
-      : ("  +-------+") : 
-          [printf "%d%s" i (" |" ++ (concat $ map pure row) ++ "|")
-          | (i, row) <- zip nats board
-          ]
-      ++ ["  +-------+"]
-  
-  showWhichPlayer (Connect4State _ player)
-    = printf "Player %c's turn." (if player then 'X' else 'O')
-
-
------------------------ Gomoku ------------------------
-
-data Gomoku = Gomoku
-
-gomokuMoveParser :: Parser (Move Gomoku)
-gomokuMoveParser
-  = (\x y -> GomokuMove (x - 1) (y - 1)) <$> posInt <*> posInt
-
-instance Game Gomoku where
-  
-  data Move Gomoku = GomokuMove Int Int
-    deriving Eq
-  data State Gomoku = GomokuState [[Char]] Bool
-
-  initState = GomokuState (replicate 19 (replicate 19 ' ')) True
-
-  doMove (GomokuMove x y) (GomokuState board player)
-    = GomokuState (replace2D x y c board) (not player)
-      where c = if player then 'X' else 'O'
-
-  getValidMoves (GomokuState board _)
-    = [GomokuMove x y | x <- [0..18], y <- [0..18], board !! y !! x == ' ']
-  
-  isDraw state = not (hasWinner state) && length (getValidMoves state) == 0
-
-  hasWinner (GomokuState board player)
-    = or [nInARow 5 c board x y dx dy
-         | x <- [0..18], y <- [0..18], dx <- [-1..1], dy <- [-1..1]
-         , not (dx == 0 && dy == 0)
-         ]
-      where c = if player then 'O' else 'X'
-
-  getWinnerMessage (GomokuState _ player)
-    = printf "Player %c wins!" (if player then 'O' else 'X')
-
-  showState (GomokuState board _)
-    = unlines $
-        (topLabel 7)
-      : ("   +-------------------+") : 
-          [printf "%02d%s" i (" |" ++ (concat $ map pure row) ++ "|")
-          | (i, row) <- zip nats board
-          ]
-      ++ ["   +-------------------+"]
-  
-  showWhichPlayer (GomokuState _ player)
-    = printf "Player %c's turn." (if player then 'X' else 'O')
 
