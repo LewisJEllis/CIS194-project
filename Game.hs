@@ -12,17 +12,27 @@ import Text.Printf
 
 {-
 
-Potential games:
-  - Connect 4
-  - Reversi/Othello
-  - Checkers
-  - Gomoku
-  - Go
+Todo list
+  tictactoe
+    --game
+    AI
+  connect4
+    -game
+    AI
+  gomoku
+    game
+    AI?
+  breakthrough
+    game
+    AI?
+  mnk generalization?
+  split into separate files?
 
 Sample run commands:
   Tic-Tac-Toe (move input format: x y):
     playGame (makeHumanPlayer ticTacToeMoveParser) (makeHumanPlayer ticTacToeMoveParser)
 
+    playGame (makeHumanPlayer connect4MoveParser) (makeHumanPlayer connect4MoveParser)
 -- forkIO
 -- threadDelay
 -- http://www.haskell.org/ghc/docs/latest/html/libraries/base/Control-Concurrent.html
@@ -36,6 +46,10 @@ Sample run commands:
 
 surround :: a -> [a] -> [a]
 surround a as = [a] ++ intersperse a as ++ [a]
+
+topLabel :: Int -> [Char]
+--topLabel n = intercalate "   " $ map show [1..n]
+topLabel n = concatMap (\c -> "   " ++ show c) [1..n]
 
 nats :: [Integer]
 nats = [1..]
@@ -55,6 +69,8 @@ nInARow n a board x y dx dy
   | otherwise            = nInARow (n - 1) a board (x + dx) (y + dy) dx dy
   where xSize = length (head board)
         ySize = length board
+
+
 
 -------------------- Class Definitions ---------------------
 
@@ -158,3 +174,103 @@ instance Game TicTacToe where
   
   showWhichPlayer (TicTacToeState _ player)
     = printf "Player %c's turn." (if player then 'X' else 'O')
+
+
+----------------------- Connect4 ------------------------
+
+data Connect4 = Connect4
+
+connect4MoveParser :: Parser (Move Connect4)
+connect4MoveParser
+  = (\x -> Connect4Move (x - 1)) <$> posInt
+--  = (\x -> Connect4Move (x - 1)) <$> posInt <*> posInt
+--reduce this to column
+
+instance Game Connect4 where
+  
+  data Move Connect4 = Connect4Move Int
+    deriving Eq
+  data State Connect4 = Connect4State [[Char]] Bool
+
+  initState = Connect4State (replicate 6 "       ") True
+
+  doMove (Connect4Move x) (Connect4State board player)
+    = Connect4State (replace2D x y c board) (not player)
+      where c = if player then 'X' else 'O'
+            y = length (takeWhile (== ' ') (board !! x))
+
+  getValidMoves (Connect4State board _)
+    = [Connect4Move x | x <- [0..6], board !! 0 !! x == ' '] --each column not full
+  
+  isDraw state = not (hasWinner state) && length (getValidMoves state) == 0
+
+  hasWinner (Connect4State board player)
+    = or [nInARow 4 c board x y dx dy
+         | x <- [0..6], y <- [0..5], dx <- [-1..1], dy <- [-1..1]
+         , not (dx == 0 && dy == 0)
+         ]
+      where c = if player then 'O' else 'X'
+
+  getWinnerMessage (Connect4State _ player)
+    = printf "Player %c wins!" (if player then 'O' else 'X')
+
+  showState (Connect4State board _)
+    = unlines $
+        (topLabel 7)
+      : ("  +-------+") : 
+          [printf "%d%s" i (" |" ++ (concat $ map pure row) ++ "|")
+          | (i, row) <- zip nats board
+          ]
+      ++ ["  +-------+"]
+  
+  showWhichPlayer (Connect4State _ player)
+    = printf "Player %c's turn." (if player then 'X' else 'O')
+
+
+----------------------- Gomoku ------------------------
+
+data Gomoku = Gomoku
+
+gomokuMoveParser :: Parser (Move Gomoku)
+gomokuMoveParser
+  = (\x y -> GomokuMove (x - 1) (y - 1)) <$> posInt <*> posInt
+
+instance Game Gomoku where
+  
+  data Move Gomoku = GomokuMove Int Int
+    deriving Eq
+  data State Gomoku = GomokuState [[Char]] Bool
+
+  initState = GomokuState (replicate 19 (replicate 19 ' ')) True
+
+  doMove (GomokuMove x y) (GomokuState board player)
+    = GomokuState (replace2D x y c board) (not player)
+      where c = if player then 'X' else 'O'
+
+  getValidMoves (GomokuState board _)
+    = [GomokuMove x y | x <- [0..18], y <- [0..18], board !! y !! x == ' ']
+  
+  isDraw state = not (hasWinner state) && length (getValidMoves state) == 0
+
+  hasWinner (GomokuState board player)
+    = or [nInARow 5 c board x y dx dy
+         | x <- [0..18], y <- [0..18], dx <- [-1..1], dy <- [-1..1]
+         , not (dx == 0 && dy == 0)
+         ]
+      where c = if player then 'O' else 'X'
+
+  getWinnerMessage (GomokuState _ player)
+    = printf "Player %c wins!" (if player then 'O' else 'X')
+
+  showState (GomokuState board _)
+    = unlines $
+        (topLabel 7)
+      : ("   +-------------------+") : 
+          [printf "%02d%s" i (" |" ++ (concat $ map pure row) ++ "|")
+          | (i, row) <- zip nats board
+          ]
+      ++ ["   +-------------------+"]
+  
+  showWhichPlayer (GomokuState _ player)
+    = printf "Player %c's turn." (if player then 'X' else 'O')
+
