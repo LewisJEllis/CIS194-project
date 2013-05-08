@@ -15,7 +15,9 @@ connect4MoveParser :: Parser (Move Connect4)
 connect4MoveParser
   = (\x -> Connect4Move (x - 1)) <$> posInt
 
+-- AI functions for Connect4
 
+--Values of runs used by heuristic
 runValue :: Int -> Int
 runValue = (!!) [0,2,6,18,1000]
 
@@ -34,6 +36,7 @@ coeff 'X' p = if p then 1 else -1
 coeff 'O' p = if p then -1 else 1
 coeff _   _ = 0
 
+--Heuristic essentially checks each run on the board and sums the values to get a number 
 getRuns :: State Connect4 -> [(Char, Int)]
 getRuns (Connect4State board _) = 
   [(c1, m) 
@@ -45,6 +48,7 @@ getRuns (Connect4State board _) =
 successors :: State Connect4 -> [(State Connect4, Move Connect4)]
 successors s = [(doMove m s, m) | m <- (getValidMoves s)]
 
+--The second argument to negamax within this function indicates the depth of search
 connect4AI :: Player Connect4
 connect4AI s = 
   return (snd (maximumBy (\(h1,_) (h2,_) -> compare h1 h2) tuples))

@@ -15,6 +15,9 @@ ticTacToeMoveParser :: Parser (Move TicTacToe)
 ticTacToeMoveParser
   = (\x y -> TicTacToeMove (x - 1) (y - 1)) <$> posInt <*> posInt
 
+
+-- AI functions for Tic-Tac-Toe
+
 runValue :: Int -> Int
 runValue = (!!) [0, 2, 10, 1000]
 

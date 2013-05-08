@@ -6,7 +6,6 @@ import Game
 import Parser
 
 import Control.Applicative
---import Data.List
 import Text.Printf
 
 data Breakthrough = Breakthrough
