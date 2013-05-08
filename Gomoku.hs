@@ -75,12 +75,12 @@ instance Game Gomoku where
 
   showState (GomokuState board _)
     = unlines $
-        (topLabel 7)
-      : ("   +-------------------+") : 
-          [printf "%02d%s" i (" |" ++ (concat $ map pure row) ++ "|")
+      ("    " ++ (concat $ intersperse " " $ map (printf "%02d") ([1..19] :: [Integer])))
+      : ("   +--------------------------------------------------------+") : 
+          [printf "%02d%s" i (" | " ++ (concat $ intersperse "  " $ map pure row) ++ "|")
           | (i, row) <- zip nats board
           ]
-      ++ ["   +-------------------+"]
+      ++ ["   +--------------------------------------------------------+"]
   
   showWhichPlayer (GomokuState _ player)
     = printf "Player %c's turn." (if player then 'X' else 'O')
