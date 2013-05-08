@@ -33,6 +33,7 @@ Sample run commands:
     playGame (makeHumanPlayer ticTacToeMoveParser) (makeHumanPlayer ticTacToeMoveParser)
 
     playGame (makeHumanPlayer connect4MoveParser) (makeHumanPlayer connect4MoveParser)
+    playGame (makeHumanPlayer gomokuMoveParser) (makeHumanPlayer gomokuMoveParser)
 -- forkIO
 -- threadDelay
 -- http://www.haskell.org/ghc/docs/latest/html/libraries/base/Control-Concurrent.html
@@ -48,8 +49,7 @@ surround :: a -> [a] -> [a]
 surround a as = [a] ++ intersperse a as ++ [a]
 
 topLabel :: Int -> [Char]
---topLabel n = intercalate "   " $ map show [1..n]
-topLabel n = concatMap (\c -> "   " ++ show c) [1..n]
+topLabel n = " " ++ concatMap (\c -> "   " ++ show c) [1..n]
 
 nats :: [Integer]
 nats = [1..]

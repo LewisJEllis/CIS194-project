@@ -16,13 +16,14 @@ ticTacToeMoveParser
   = (\x y -> TicTacToeMove (x - 1) (y - 1)) <$> posInt <*> posInt
 
 runValue :: Int -> Int
-runValue = (!!) [0,2,10,1000]
+runValue = (!!) [0,2,10,10000]
 
 negamax :: State TicTacToe -> Int -> Bool -> Int
 negamax s@(TicTacToeState board _) d p
-  | d == 0     = heuristic s
-  | otherwise  = (maximum . map (\ss -> (-1)*(negamax ss (d-1) (not p))) . fst . unzip . successors) 
-                 (TicTacToeState board p)
+  | d == 0 || hasWinner s || isDraw s = heuristic s
+  | otherwise = (maximum . map (\ss -> (-1)*(negamax ss (d-1) (not p)))
+                . fst . unzip . successors
+                ) (TicTacToeState board p)
 
 heuristic :: State TicTacToe -> Int
 heuristic s@(TicTacToeState _ player) = 
@@ -44,7 +45,7 @@ successors s = [(doMove m s, m) | m <- (getValidMoves s)]
 ticTacToeAI :: Player TicTacToe
 ticTacToeAI s = 
   return (snd (maximumBy (\(h1,_) (h2,_) -> compare h1 h2) tuples))
-  where tuples = (map (\(ss,m) -> (negamax ss 2 True, m)) (successors s))
+  where tuples = (map (\(ss,m) -> (negamax ss 2 False, m)) (successors s))
 --ticTacToeAI s@(TicTacToeState board player) = return (TicTacToeMove 1 1)
 {-ticTacToeAI s = 
   return (snd (maximumBy (\(h1,_) (h2,_) -> compare h1 h2) tuples))
@@ -56,6 +57,7 @@ instance Game TicTacToe where
   data Move TicTacToe = TicTacToeMove Int Int
     deriving Eq
   data State TicTacToe = TicTacToeState [[Char]] Bool
+    deriving Show
 
   initState = TicTacToeState ["   ", "   ", "   "] True
 
@@ -80,7 +82,7 @@ instance Game TicTacToe where
 
   showState (TicTacToeState board _)
     = unlines $
-        "    1   2   3"
+        (topLabel 3)
       : surround "  +---+---+---+"
           [printf "%d%s" i (concat $ surround " | " $ map pure row)
           | (i, row) <- zip nats board
