@@ -6,37 +6,51 @@ import Game
 import Parser
 
 import Control.Applicative
-import Data.List
+--import Data.List
 import Text.Printf
 
 data Breakthrough = Breakthrough
---still work in progress, lots of english in here
-instance Game Breakthrough where
-  
+
+dest :: Int -> Int -> Int -> Bool -> (Int, Int)
+dest x y d p = ((x + d - 2), y - (if p then 1 else (-1)))
+
+
+--d is an integer 1-3 representing diagonal left, straight, and diagonal right
+breakthroughMoveParser :: Parser (Move Breakthrough)
+breakthroughMoveParser
+  = (\x y d -> BreakthroughMove (x - 1) (y - 1) d) <$> posInt <*> posInt <*> posInt
+
+instance Game Breakthrough where  
   data Move Breakthrough = BreakthroughMove Int Int Int
     deriving Eq
   data State Breakthrough = BreakthroughState [[Char]] Bool
 
-  initState = BreakthroughState (replicate 8 "        ") True
+  initState = BreakthroughState 
+              (["OOOOOOOO","OOOOOOOO"] ++ (replicate 4 "        ") ++ ["XXXXXXXX","XXXXXXXX"])
+              True
 
   doMove (BreakthroughMove x y d) (BreakthroughState board player)
-    = BreakthroughState (replace2D x y ' ' (replace2D tx ty c)) (not player)
-      where ty = if player then 1 else (-1)
-            tx = d - 2
+    = BreakthroughState (replace2D x y ' ' (replace2D dx dy c board)) (not player)
+      where (dx, dy) = dest x y d player
             c = if player then 'X' else 'O'
 
-
+  --not going off the board, your piece there
+  --not running over your own piece, not going straight into an opponent
   getValidMoves (BreakthroughState board player)
     = [BreakthroughMove x y d | x <- [0..7], y <- [0..7], d <- [1..3], 
-      not moving onto own piece, not moving straight at enemy
-      board !! y !! x == c]
-      where c = if player then 'X' else 'O'????
+      let (dx,dy) = dest x y d player,
+      (dx >= 0 && dx < 8 && dy >= 0 && dy < 8 
+      && (board !! y !! x == c)
+      && not (board !! dy !! dx == c) 
+      && not (d == 2 && board !! dy !! dx == e))]
+      where c = if player then 'X' else 'O'
+            e = if player then 'O' else 'X'
   
   isDraw state = not (hasWinner state) && length (getValidMoves state) == 0
 
   hasWinner (BreakthroughState board player)
-    = if player then O on top or [X on top or O on bottom]
-      where c = if player then 'O' else 'X'
+    | player    = elem 'O' (board !! 7)
+    | otherwise = elem 'X' (board !! 0)
 
   getWinnerMessage (BreakthroughState _ player)
     = printf "Player %c wins!" (if player then 'O' else 'X')
