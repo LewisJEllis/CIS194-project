@@ -26,11 +26,14 @@ negamax s@(GomokuState board _) d p
 
 heuristic :: State Gomoku -> Int
 heuristic s@(GomokuState _ player) = 
-  sum (map (\(c,m) -> (if c == 'O' then 1 else -1) * (runValue m)) (getRuns s))
+  sum (map (\(c,m) -> (coeff c player) * (runValue m)) (getRuns s))
 
+--Positive or negative based on who's turn
+--Related to negamax's idea that h(s,p) = -h(s,p')
 coeff :: Char -> Bool -> Int
-coeff 'O' p = if p then 1 else -1
-coeff 'X' p = if p then -1 else 1
+coeff 'X' p = if p then 1 else -1
+coeff 'O' p = if p then -1 else 1
+coeff _   _ = 0
 
 --This is the main timesink for the AI, with the 19*19*5 searchspace for runchecking
 getRuns :: State Gomoku -> [(Char, Int)]
