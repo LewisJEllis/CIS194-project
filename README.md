@@ -9,7 +9,7 @@ For our final project, we built a Haskell platform for 2D board games such as Ti
 
 **What We Learned and Accomplished**
 
-First and foremost, this project helped us gain exposure to associated data types, thereby allowing us to create a generic Game class with our desired properties. Given a data type g, we defined new data types Move g and State g inside of the Game class, then proceeded by defining a number of functions using these associated data types. Through the use of this structure, we ensure that functions for one game are applied only to states and moves associated with that game. Furthermore, this also allowed us to write general functions such as playGame and makeHumanPlayer that were applicable to all games, which in turn led to better modularity and less reuse of code.
+First and foremost, this project helped us gain exposure to associated data types, thereby allowing us to create a generic Game class with our desired properties. Given a data type ```g```, we defined new data types ```Move g``` and ```State g``` inside of the Game class, then proceeded by defining a number of functions using these associated data types. Through the use of this structure, we ensure that functions for one game are applied only to states and moves associated with that game. Furthermore, this also allowed us to write general functions such as ```playGame``` and ```makeHumanPlayer``` that were applicable to all games, which in turn led to better modularity and less reuse of code.
 
 In our experience, this aspect of the project was a success - once we had implemented the framework, it took less than an hour to define an entirely new game from start to finish. Furthermore, thanks to the functions included in our framework, no additional work was required to play the game from the console using a text-based interface.
 
@@ -30,17 +30,17 @@ Though we ran into trouble writing complex AIs between runtime limitations and t
 Playing a game can be accomplished by loading the appropriate file and running one of the following commands:
 
 Tic-Tac-Toe (move input format: x y):
-* Human vs. Human: playGame (makeHumanPlayer ticTacToeMoveParser) (makeHumanPlayer ticTacToeMoveParser)
-* Human vs. AI: playGame (makeHumanPlayer ticTacToeMoveParser) (ticTacToeAI)
+* Human vs. Human: ```playGame (makeHumanPlayer ticTacToeMoveParser) (makeHumanPlayer ticTacToeMoveParser)```
+* Human vs. AI: ```playGame (makeHumanPlayer ticTacToeMoveParser) (ticTacToeAI)```
 
 Connect 4 (move input format: column):
-* Human vs. Human: playGame (makeHumanPlayer connect4MoveParser) (makeHumanPlayer connect4MoveParser)
-* Human vs. AI: playGame (makeHumanPlayer connect4MoveParser) (connect4AI)
+* Human vs. Human: ```playGame (makeHumanPlayer connect4MoveParser) (makeHumanPlayer connect4MoveParser)```
+* Human vs. AI: ```playGame (makeHumanPlayer connect4MoveParser) (connect4AI)```
 
 Gomoku (move input format: x y):
-* Human vs. Human: playGame (makeHumanPlayer gomokuMoveParser) (makeHumanPlayer gomokuMoveParser)
-* Human vs. AI: playGame (makeHumanPlayer gomokuMoveParser) (gomokuAI)
+* Human vs. Human: ```playGame (makeHumanPlayer gomokuMoveParser) (makeHumanPlayer gomokuMoveParser)```
+* Human vs. AI: ```playGame (makeHumanPlayer gomokuMoveParser) (gomokuAI)```
 * Note: The Gomoku AI is very slow due to the branching factor; in its present state, it is not feasible to play against since it’s a simple expansion of the TicTacToe and Connect4 4 AIs.
 
 Breakthrough (move input format: x y d, d = 1 2 3 forward directions):
-* playGame (makeHumanPlayer breakthroughMoveParser) (makeHumanPlayer breakthroughMoveParser)
+* Human vs. Human: ```playGame (makeHumanPlayer breakthroughMoveParser) (makeHumanPlayer breakthroughMoveParser)```
