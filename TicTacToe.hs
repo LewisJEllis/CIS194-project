@@ -16,40 +16,40 @@ ticTacToeMoveParser
   = (\x y -> TicTacToeMove (x - 1) (y - 1)) <$> posInt <*> posInt
 
 runValue :: Int -> Int
-runValue = (!!) [0,2,10,1000]
+runValue = (!!) [0, 2, 10, 1000]
 
-negamax :: State TicTacToe -> Int -> Bool -> Int
-negamax s@(TicTacToeState board _) d p
-  | d == 0     = heuristic s
-  | otherwise  = (maximum . map (\ss -> (-1)*(negamax ss (d-1) (not p))) . fst . unzip . successors) 
-                 (TicTacToeState board p)
+negamax :: State TicTacToe -> Int -> Int
+negamax s d
+  | d <= 0 || isGameOver s = heuristic s
+  | otherwise
+    = (maximum . map (\s' -> -(negamax s' (d - 1))) . fst . unzip . successors) s
 
 heuristic :: State TicTacToe -> Int
 heuristic s@(TicTacToeState _ player) = 
-  sum (map (\(c,m) -> (if c == 'O' then 1 else -1) * (runValue m)) (getRuns s))
+  sum $ map (\(c, m) -> (coeff c player) * (runValue m)) $ getRuns s
 
 coeff :: Char -> Bool -> Int
-coeff 'O' p = if p then 1 else -1
-coeff 'X' p = if p then -1 else 1
+coeff 'X' p = if p then 1 else -1
+coeff 'O' p = if p then -1 else 1
+coeff _   _ = 0
 
 getRuns :: State TicTacToe -> [(Char, Int)]
-getRuns (TicTacToeState board _) = [(c1, m) | m <- [1..3], (c1,c2) <- [('O','X'),('X','O')], 
-  x <- [0..2], y <- [0..2], dx <- [-1..1], dy <- [-1..1],
-  (dx /= 0 || dy /= 0) && (nmInARow 3 m c1 c2 board x y dx dy)]
+getRuns (TicTacToeState board _) =
+  [(c1, m)
+  | m <- [1..3], (c1,c2) <- [('O','X'),('X','O')], 
+    x <- [0..2], y <- [0..2], dx <- [-1..1], dy <- [-1..1],
+    not (dx == 0 && dy == 0) && (nmInARow 3 m c1 c2 board x y dx dy)
+  ]
 
 successors :: State TicTacToe -> [(State TicTacToe, Move TicTacToe)]
 successors s = [(doMove m s, m) | m <- (getValidMoves s)]
 
-
 ticTacToeAI :: Player TicTacToe
 ticTacToeAI s = 
-  return (snd (maximumBy (\(h1,_) (h2,_) -> compare h1 h2) tuples))
-  where tuples = (map (\(ss,m) -> (negamax ss 2 True, m)) (successors s))
---ticTacToeAI s@(TicTacToeState board player) = return (TicTacToeMove 1 1)
-{-ticTacToeAI s = 
-  return (snd (maximumBy (\(h1,_) (h2,_) -> compare h1 h2) tuples))
-  where tuples = (map (\(ss,m) -> (heuristic ss, m)) (successors s))
--}
+  return (snd (maximumBy (\(h1, _) (h2, _) -> compare h1 h2) tuples))
+  where tuples = map (\(s', m) -> (-(negamax s' 2), m)) $ successors s
+
+-- Game declaration for Tic-Tac-Toe
 
 instance Game TicTacToe where
   
