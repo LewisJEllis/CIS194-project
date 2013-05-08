@@ -103,6 +103,9 @@ class Game g where
   isDraw           :: State g -> Bool
   hasWinner        :: State g -> Bool
   getWinnerMessage :: State g -> String
+  
+  isGameOver       :: State g -> Bool
+  isGameOver s = isDraw s || hasWinner s
 
   showState        :: State g -> String
   showWhichPlayer  :: State g -> String
