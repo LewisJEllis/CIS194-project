@@ -9,47 +9,47 @@ import Control.Applicative
 import Data.List
 import Text.Printf
 
-
-
-runValue :: Int -> Int
-runValue = (!!) [0,2,6,18,1000]
-
-negamax :: State Connect4 -> Int -> Bool -> Int
-negamax s@(Connect4State board _) d p
-  | d == 0     = heuristic s
-  | otherwise  = (maximum . map (\ss -> (-1)*(negamax ss (d-1) (not p))) . fst . unzip . successors) 
-                 (Connect4State board p)
-
-heuristic :: State Connect4 -> Int
-heuristic s@(Connect4State _ player) = 
-  sum (map (\(c,m) -> (if c == 'O' then 1 else -1) * (runValue m)) (getRuns s))
-
-coeff :: Char -> Bool -> Int
-coeff 'O' p = if p then 1 else -1
-coeff 'X' p = if p then -1 else 1
-
-getRuns :: State Connect4 -> [(Char, Int)]
-getRuns (Connect4State board _) = [(c1, m) | m <- [1..3], (c1,c2) <- [('O','X'),('X','O')], 
-  x <- [0..6], y <- [0..5], dx <- [-1..1], dy <- [-1..1],
-  (dx /= 0 || dy /= 0) && (nmInARow 4 m c1 c2 board x y dx dy)]
-
-successors :: State Connect4 -> [(State Connect4, Move Connect4)]
-successors s = [(doMove m s, m) | m <- (getValidMoves s)]
-
-
-connect4AI :: Player Connect4
-connect4AI s = 
-  return (snd (maximumBy (\(h1,_) (h2,_) -> compare h1 h2) tuples))
-  where tuples = (map (\(ss,m) -> (negamax ss 2 False, m)) (successors s))
-
-
 data Connect4 = Connect4
 
 connect4MoveParser :: Parser (Move Connect4)
 connect4MoveParser
   = (\x -> Connect4Move (x - 1)) <$> posInt
---  = (\x -> Connect4Move (x - 1)) <$> posInt <*> posInt
---reduce this to column
+
+
+runValue :: Int -> Int
+runValue = (!!) [0,2,6,18,1000]
+
+negamax :: State Connect4 -> Int -> Int
+negamax s d
+  | d == 0 || isGameOver s = heuristic s
+  | otherwise
+    = (maximum . map (\s' -> -(negamax s' (d - 1))) . fst . unzip . successors) s
+
+heuristic :: State Connect4 -> Int
+heuristic s@(Connect4State _ player) = 
+  sum $ map (\(c, m) -> (coeff c player) * (runValue m)) $ getRuns s
+
+coeff :: Char -> Bool -> Int
+coeff 'X' p = if p then 1 else -1
+coeff 'O' p = if p then -1 else 1
+coeff _   _ = 0
+
+getRuns :: State Connect4 -> [(Char, Int)]
+getRuns (Connect4State board _) = 
+  [(c1, m) 
+  | m <- [1..4], (c1,c2) <- [('O','X'),('X','O')], 
+    x <- [0..6], y <- [0..5], dx <- [-1..1], dy <- [-1..1],
+    not (dx == 0 && dy == 0) && (nmInARow 4 m c1 c2 board x y dx dy)
+  ]
+
+successors :: State Connect4 -> [(State Connect4, Move Connect4)]
+successors s = [(doMove m s, m) | m <- (getValidMoves s)]
+
+connect4AI :: Player Connect4
+connect4AI s = 
+  return (snd (maximumBy (\(h1,_) (h2,_) -> compare h1 h2) tuples))
+  where tuples = map (\(s', m) -> (-(negamax s' 2), m)) $ successors s
+
 
 instance Game Connect4 where
   

@@ -15,25 +15,23 @@ import Data.List
 Todo list
   tictactoe
     --game
-    AI
+    --AI
   connect4
-    -game
-    AI
+    --game
+    --AI
   gomoku
-    game
-    AI?
+    --game
+    --AI?
   breakthrough
-    game
-    AI?
-  mnk generalization?
-  split into separate files?
+    --game
+  --split into separate files
 
 Sample run commands:
   Tic-Tac-Toe (move input format: x y):
     playGame (makeHumanPlayer ticTacToeMoveParser) (makeHumanPlayer ticTacToeMoveParser)
-
     playGame (makeHumanPlayer connect4MoveParser) (makeHumanPlayer connect4MoveParser)
     playGame (makeHumanPlayer gomokuMoveParser) (makeHumanPlayer gomokuMoveParser)
+    playGame (makeHumanPlayer breakthroughMoveParser) (makeHumanPlayer breakthroughMoveParser)
 -- forkIO
 -- threadDelay
 -- http://www.haskell.org/ghc/docs/latest/html/libraries/base/Control-Concurrent.html
