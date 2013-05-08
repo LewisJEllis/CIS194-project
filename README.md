@@ -36,6 +36,7 @@ Tic-Tac-Toe (move input format: x y):
 Connect 4 (move input format: column):
 * Human vs. Human: ```playGame (makeHumanPlayer connect4MoveParser) (makeHumanPlayer connect4MoveParser)```
 * Human vs. AI: ```playGame (makeHumanPlayer connect4MoveParser) (connect4AI)```
+* Note: The Connect 4 AI requires about 5-10 seconds per move.
 
 Gomoku (move input format: x y):
 * Human vs. Human: ```playGame (makeHumanPlayer gomokuMoveParser) (makeHumanPlayer gomokuMoveParser)```
