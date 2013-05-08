@@ -10,6 +10,10 @@ import Text.Printf
 
 data Breakthrough = Breakthrough
 
+--Chess variant. Only pawns. Normal pawn movement, except they can always move diagonally forward.
+--Get a pawn to the opposite side to win.
+
+--Figure out the destination of a piece when applying a move
 dest :: Int -> Int -> Int -> Bool -> (Int, Int)
 dest x y d p = ((x + d - 2), y - (if p then 1 else (-1)))
 
@@ -18,6 +22,7 @@ dest x y d p = ((x + d - 2), y - (if p then 1 else (-1)))
 breakthroughMoveParser :: Parser (Move Breakthrough)
 breakthroughMoveParser
   = (\x y d -> BreakthroughMove (x - 1) (y - 1) d) <$> posInt <*> posInt <*> posInt
+
 
 instance Game Breakthrough where  
   data Move Breakthrough = BreakthroughMove Int Int Int
@@ -33,8 +38,8 @@ instance Game Breakthrough where
       where (dx, dy) = dest x y d player
             c = if player then 'X' else 'O'
 
-  --not going off the board, your piece there
-  --not running over your own piece, not going straight into an opponent
+  --Not going off the board, and you have a piece there to start
+  --Not running over your own piece, and not going straight into an opponent
   getValidMoves (BreakthroughState board player)
     = [BreakthroughMove x y d | x <- [0..7], y <- [0..7], d <- [1..3], 
       let (dx,dy) = dest x y d player,
@@ -47,6 +52,7 @@ instance Game Breakthrough where
   
   isDraw state = not (hasWinner state) && length (getValidMoves state) == 0
 
+  --Wincondition: Xs in the top row or Os in the bottom row
   hasWinner (BreakthroughState board player)
     | player    = elem 'O' (board !! 7)
     | otherwise = elem 'X' (board !! 0)

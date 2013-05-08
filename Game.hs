@@ -6,38 +6,8 @@ module Game where
 
 import Parser
 
---import Control.Applicative
---import Text.Printf
 import Data.List
 
-{-
-
-Todo list
-  tictactoe
-    --game
-    --AI
-  connect4
-    --game
-    --AI
-  gomoku
-    --game
-    --AI?
-  breakthrough
-    --game
-  --split into separate files
-
-Sample run commands:
-  Tic-Tac-Toe (move input format: x y):
-    playGame (makeHumanPlayer ticTacToeMoveParser) (makeHumanPlayer ticTacToeMoveParser)
-    playGame (makeHumanPlayer connect4MoveParser) (makeHumanPlayer connect4MoveParser)
-    playGame (makeHumanPlayer gomokuMoveParser) (makeHumanPlayer gomokuMoveParser)
-    playGame (makeHumanPlayer breakthroughMoveParser) (makeHumanPlayer breakthroughMoveParser)
--- forkIO
--- threadDelay
--- http://www.haskell.org/ghc/docs/latest/html/libraries/base/Control-Concurrent.html
--- http://www.haskell.org/ghc/docs/latest/html/libraries/base/Control-Concurrent-MVar.html
-
--}
 
 --------------------- Helper Functions ---------------------
 
@@ -71,9 +41,7 @@ nInARow n a board x y dx dy
   where xSize = length (head board)
         ySize = length board
 
---Is there a run of a's of length m within a run of length n with no b's in that area?
--- n <= 0               = (m <= 0) swap this line with the below to count 
-
+--Is there a run of a's of length m within a run of length n with no b's in the way?
 nmInARow :: Eq a => Int -> Int -> a -> a -> [[a]] -> Int -> Int -> Int -> Int -> Bool
 nmInARow n m a b board x y dx dy
   | m <= 0               = True
@@ -144,6 +112,3 @@ playGameFrom state player1 player2 =
 -- choose :: (Monad m) => [(Bool, m a)] -> m a
 -- (==>) = (,)
 
--- multiplayer:
---   - rotate through a list of players, or
---   - define a function in Game for who moves next

@@ -17,10 +17,12 @@ connect4MoveParser
 
 -- AI functions for Connect4
 
+
 --Values of runs used by heuristic
 runValue :: Int -> Int
 runValue = (!!) [0,2,6,18,1000]
 
+--Standard implementation of the Negamax algorithm. 
 negamax :: State Connect4 -> Int -> Int
 negamax s d
   | d == 0 || isGameOver s = heuristic s
@@ -45,6 +47,7 @@ getRuns (Connect4State board _) =
     not (dx == 0 && dy == 0) && (nmInARow 4 m c1 c2 board x y dx dy)
   ]
 
+--Find all possible successor states, based on valid moves
 successors :: State Connect4 -> [(State Connect4, Move Connect4)]
 successors s = [(doMove m s, m) | m <- (getValidMoves s)]
 
@@ -63,13 +66,16 @@ instance Game Connect4 where
 
   initState = Connect4State (replicate 6 "       ") True
 
+  --Modified move input to only require a column
+  --Then we find the first y we can put the piece at.
   doMove (Connect4Move x) (Connect4State board player)
     = Connect4State (replace2D x y c board) (not player)
       where c = if player then 'X' else 'O'
             y = length (takeWhile (\r -> (r !! x) == ' ') board) - 1
 
+  --Return any column which isn't full
   getValidMoves (Connect4State board _)
-    = [Connect4Move x | x <- [0..6], board !! 0 !! x == ' '] --each column not full
+    = [Connect4Move x | x <- [0..6], board !! 0 !! x == ' ']
   
   isDraw state = not (hasWinner state) && length (getValidMoves state) == 0
 

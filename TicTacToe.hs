@@ -31,6 +31,8 @@ heuristic :: State TicTacToe -> Int
 heuristic s@(TicTacToeState _ player) = 
   sum $ map (\(c, m) -> (coeff c player) * (runValue m)) $ getRuns s
 
+--Positive or negative based on who's turn
+--Related to negamax's idea that h(s,p) = -h(s,p')
 coeff :: Char -> Bool -> Int
 coeff 'X' p = if p then 1 else -1
 coeff 'O' p = if p then -1 else 1
@@ -62,6 +64,7 @@ instance Game TicTacToe where
 
   initState = TicTacToeState ["   ", "   ", "   "] True
 
+  --replace2D helper handles moveplacing, we just decide which player to place
   doMove (TicTacToeMove x y) (TicTacToeState board player)
     = TicTacToeState (replace2D x y c board) (not player)
       where c = if player then 'X' else 'O'
@@ -71,6 +74,7 @@ instance Game TicTacToe where
   
   isDraw state = not (hasWinner state) && length (getValidMoves state) == 0
 
+  --Check all runs of length 3 
   hasWinner (TicTacToeState board player)
     = or [nInARow 3 c board x y dx dy
          | x <- [0..2], y <- [0..2], dx <- [-1..1], dy <- [-1..1]

@@ -32,6 +32,7 @@ coeff :: Char -> Bool -> Int
 coeff 'O' p = if p then 1 else -1
 coeff 'X' p = if p then -1 else 1
 
+--This is the main timesink for the AI, with the 19*19*5 searchspace for runchecking
 getRuns :: State Gomoku -> [(Char, Int)]
 getRuns (GomokuState board _) = [(c1, m) | m <- [2..5], (c1,c2) <- [('O','X'),('X','O')], 
   x <- [0..18], y <- [0..18], dx <- [-1..1], dy <- [-1..1],
@@ -46,6 +47,8 @@ gomokuAI s =
   where tuples = (map (\(ss,m) -> (negamax ss 3 False, m)) (successors s))
 
 
+--Only changes to get here from TicTacToe were dimension numbers
+--Interesting topic which generalizes this: 'm,n,k' games.
 instance Game Gomoku where
   
   data Move Gomoku = GomokuMove Int Int
