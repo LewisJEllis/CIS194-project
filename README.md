@@ -40,7 +40,7 @@ Connect 4 (move input format: column):
 Gomoku (move input format: x y):
 * Human vs. Human: ```playGame (makeHumanPlayer gomokuMoveParser) (makeHumanPlayer gomokuMoveParser)```
 * Human vs. AI: ```playGame (makeHumanPlayer gomokuMoveParser) (gomokuAI)```
-* Note: The Gomoku AI is very slow due to the branching factor; in its present state, it is not feasible to play against since it’s a simple expansion of the TicTacToe and Connect4 4 AIs.
+* Note: The Gomoku AI is very slow due to the branching factor; in its present state, it is not feasible to play against since it’s a simple expansion of the TicTacToe and Connect 4 AIs.
 
 Breakthrough (move input format: x y d, d = 1 2 3 forward directions):
 * Human vs. Human: ```playGame (makeHumanPlayer breakthroughMoveParser) (makeHumanPlayer breakthroughMoveParser)```
