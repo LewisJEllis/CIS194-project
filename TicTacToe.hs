@@ -36,13 +36,13 @@ coeff _   _ = 0
 getRuns :: State TicTacToe -> [(Char, Int)]
 getRuns (TicTacToeState board _) =
   [(c1, m)
-  | m <- [1..3], (c1,c2) <- [('O','X'),('X','O')], 
+  | m <- [1..3], (c1, c2) <- [('O', 'X'), ('X', 'O')], 
     x <- [0..2], y <- [0..2], dx <- [-1..1], dy <- [-1..1],
     not (dx == 0 && dy == 0) && (nmInARow 3 m c1 c2 board x y dx dy)
   ]
 
 successors :: State TicTacToe -> [(State TicTacToe, Move TicTacToe)]
-successors s = [(doMove m s, m) | m <- (getValidMoves s)]
+successors s = [(doMove m s, m) | m <- getValidMoves s]
 
 ticTacToeAI :: Player TicTacToe
 ticTacToeAI s = 
