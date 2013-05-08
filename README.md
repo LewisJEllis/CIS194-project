@@ -30,17 +30,17 @@ Though we ran into trouble writing complex AIs between runtime limitations and t
 Playing a game can be accomplished by loading the appropriate file and running one of the following commands:
 
 Tic-Tac-Toe (move input format: x y):
-Human vs. Human: playGame (makeHumanPlayer ticTacToeMoveParser) (makeHumanPlayer ticTacToeMoveParser)
-Human vs. AI: playGame (makeHumanPlayer ticTacToeMoveParser) (ticTacToeAI)
+* Human vs. Human: playGame (makeHumanPlayer ticTacToeMoveParser) (makeHumanPlayer ticTacToeMoveParser)
+* Human vs. AI: playGame (makeHumanPlayer ticTacToeMoveParser) (ticTacToeAI)
 
 Connect 4 (move input format: column):
-Human vs. Human: playGame (makeHumanPlayer connect4MoveParser) (makeHumanPlayer connect4MoveParser)
-Human vs. AI: playGame (makeHumanPlayer connect4MoveParser) (connect4AI)
+* Human vs. Human: playGame (makeHumanPlayer connect4MoveParser) (makeHumanPlayer connect4MoveParser)
+* Human vs. AI: playGame (makeHumanPlayer connect4MoveParser) (connect4AI)
 
 Gomoku (move input format: x y):
-Human vs. Human: playGame (makeHumanPlayer gomokuMoveParser) (makeHumanPlayer gomokuMoveParser)
-Human vs. AI: playGame (makeHumanPlayer gomokuMoveParser) (gomokuAI)
-Note this is very slow due to the branching factor; not feasible to play against since it’s a simple expansion of the TicTacToe/Connect4 AIs
+* Human vs. Human: playGame (makeHumanPlayer gomokuMoveParser) (makeHumanPlayer gomokuMoveParser)
+* Human vs. AI: playGame (makeHumanPlayer gomokuMoveParser) (gomokuAI)
+* Note: The Gomoku AI is very slow due to the branching factor; in its present state, it is not feasible to play against since it’s a simple expansion of the TicTacToe and Connect4 4 AIs.
 
 Breakthrough (move input format: x y d, d = 1 2 3 forward directions):
-playGame (makeHumanPlayer breakthroughMoveParser) (makeHumanPlayer breakthroughMoveParser)
+* playGame (makeHumanPlayer breakthroughMoveParser) (makeHumanPlayer breakthroughMoveParser)
